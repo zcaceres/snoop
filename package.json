@@ -1,0 +1,33 @@
+{
+  "name": "snoop",
+  "description": "Like ack, for the DOM",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zcaceres/snoop.git"
+  },
+  "keywords": [
+    "tool",
+    "web",
+    "search",
+    "ack",
+    "browser"
+  ],
+  "author": "zach.dev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zcaceres/snoop/issues"
+  },
+  "devDependencies": {
+    "typescript": "^4.1.2"
+  },
+  "homepage": "https://github.com/zcaceres/snoop#readme"
+}
