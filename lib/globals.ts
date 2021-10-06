@@ -16,20 +16,21 @@ function processPrimitive() {
 
 }
 
-function traverseObject(element: object, query: string): any {
+function traverseObject(element: object, query: string, keys: string[]): any {
   return Object.entries(element).map(([k, v]: [string, any]) => {
-    if (k.includes(query)) console.log("found", query);
+    keys = [...keys, k.toString()];
+
+    if (k.includes(query)) {
+      console.log("found in key", keys.join('.'), query);
+    }
     if (isObject(v)) {
-      return traverseObject(v, query)
+      return traverseObject(v, query, keys)
     }
     if (typeof v === 'string' && v.includes(query)) {
-      console.log("found", query);
-    }
-    if (Array.isArray(v)) {
-      // must handle array of objects
+      console.log("found str", keys.join('.'), query);
     }
     if (typeof v === 'number' && v.toString().includes(query)) {
-      console.log("found", query);
+      console.log("found number", keys.join('.'), query);
     }
     return;
   });
@@ -41,7 +42,7 @@ function searchGlobals(query: string) {
       // call same function
   // identify if array or primitive
   // check primitive or array for value
-  return traverseObject(test_window, query);
+  return traverseObject(test_window, query, []);
 }
 
 searchGlobals('Hello')
