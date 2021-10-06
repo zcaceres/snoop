@@ -79,4 +79,7 @@ function snoop(query: string, options: SnoopOptions = {
 }
 
 // Make the function globally available.
-window.snoop = snoop;
+if (window) {
+  window.snoop = snoop;
+}
+

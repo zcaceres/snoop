@@ -9,7 +9,8 @@
   "dependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "yarn run eslint"
+    "lint": "yarn run eslint",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
