@@ -6,7 +6,9 @@
   "directories": {
     "lib": "lib"
   },
-  "dependencies": {},
+  "dependencies": {
+    "lodash.isobject": "^3.0.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "yarn run eslint",
@@ -29,6 +31,7 @@
     "url": "https://github.com/zcaceres/snoop/issues"
   },
   "devDependencies": {
+    "@types/node": "^16.10.3",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
     "eslint": "^7.15.0",

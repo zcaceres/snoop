@@ -13,17 +13,17 @@ function formatFoundMessage(element: string, match: string, msg: string | undefi
   console.log(`Found match: ${match} in element ${element}. ${msg}`)
 }
 
-function searchGlobals(query: string) {
-  return traverseObjectFor(window, query);
+//function searchGlobals(query: string) {
+//return traverseObjectFor(window, query);
   // traverse tree of properties recursively
   // if found, print message
 
 
-}
+  //}
 
-function traverseObjectFor(obj: object, query: string) {
+// function traverseObjectFor(obj: object, query: string) {
 
-}
+//}
 
 
 function searchScripts(query: string) {
@@ -60,7 +60,7 @@ function snoop(query: string, options: SnoopOptions = {
   images: true,
   cookies: true,
 }) {
-  if (options.globals) searchGlobals(query);
+  //if (options.globals) searchGlobals(query);
   console.log("searching globals for", query);
 
   if (options.scripts) searchScripts(query);

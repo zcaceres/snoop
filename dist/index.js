@@ -2,13 +2,13 @@
 function formatFoundMessage(element, match, msg = '') {
     console.log(`Found match: ${match} in element ${element}. ${msg}`);
 }
-function searchGlobals(query) {
-    return traverseObjectFor(window, query);
-    // traverse tree of properties recursively
-    // if found, print message
-}
-function traverseObjectFor(obj, query) {
-}
+//function searchGlobals(query: string) {
+//return traverseObjectFor(window, query);
+// traverse tree of properties recursively
+// if found, print message
+//}
+// function traverseObjectFor(obj: object, query: string) {
+//}
 function searchScripts(query) {
     const tags = Array.from(document.querySelectorAll('script'));
 }
@@ -35,8 +35,7 @@ function snoop(query, options = {
     images: true,
     cookies: true,
 }) {
-    if (options.globals)
-        searchGlobals(query);
+    //if (options.globals) searchGlobals(query);
     console.log("searching globals for", query);
     if (options.scripts)
         searchScripts(query);
@@ -54,5 +53,7 @@ function snoop(query, options = {
         searchCookies(query);
 }
 // Make the function globally available.
-window.snoop = snoop;
+if (window) {
+    window.snoop = snoop;
+}
 //# sourceMappingURL=index.js.map
