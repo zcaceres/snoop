@@ -1,85 +1,95 @@
+declare global {
+  interface Window {
+    snoop: (query: string, options?: Partial<SnoopOptions>) => void;
+  }
+}
+
 interface SnoopOptions {
-  asSubstring: boolean;
-  globals: boolean;
   scripts: boolean;
   meta: boolean;
   body: boolean;
   images: boolean;
   cookies: boolean;
+  caseSensitive: boolean;
 }
 
+export class DomSnoop {
+  query: string;
+  options: SnoopOptions;
 
-function formatFoundMessage(element: string, match: string, msg: string | undefined = '') {
-  console.log(`Found match: ${match} in element ${element}. ${msg}`)
+  constructor(query: string, options: SnoopOptions) {
+    this.query = query;
+    this.options = options;
+  }
+
+  performSearch(content: string) {
+    const normalizedContent = this.options.caseSensitive ? content : content.toLowerCase();
+    const normalizedQuery = this.options.caseSensitive ? this.query : this.query.toLowerCase();
+    return normalizedContent.includes(normalizedQuery);
+  }
+
+  searchScripts() {
+    const tags = Array.from(document.querySelectorAll('script'));
+    tags.forEach(tag => {
+      if (this.performSearch(tag.innerHTML)) {
+        console.log(`Found match: ${this.query} in script tag.`);
+      }
+    });
+  }
+
+  searchMeta() {
+    const tags = Array.from(document.querySelectorAll('meta'));
+    tags.forEach(tag => {
+      if (this.performSearch(tag.content)) {
+        console.log(`Found match: ${this.query} in meta tag.`);
+      }
+    });
+  }
+
+  searchBody() {
+    const body = document.body.innerText;
+    if (this.performSearch(body)) {
+      console.log(`Found match: ${this.query} in body.`);
+    }
+  }
+
+  searchImages() {
+    const tags = Array.from(document.querySelectorAll('img'));
+    tags.forEach(tag => {
+      if (this.performSearch(tag.alt)) {
+        console.log(`Found match: ${this.query} in image alt.`);
+      }
+    });
+  }
+
+  searchCookies() {
+    const cookies = document.cookie;
+    if (this.performSearch(cookies)) {
+      console.log(`Found match: ${this.query} in cookies.`);
+    }
+  }
+
+  snoop() {
+    if (this.options.scripts) this.searchScripts();
+    if (this.options.meta) this.searchMeta();
+    if (this.options.body) this.searchBody();
+    if (this.options.images) this.searchImages();
+    if (this.options.cookies) this.searchCookies();
+  }
+
+  static create(query: string, options?: Partial<SnoopOptions>) {
+    const defaultOptions: SnoopOptions = {
+      scripts: true,
+      meta: true,
+      body: true,
+      images: true,
+      cookies: true,
+      caseSensitive: false,
+    };
+    return new DomSnoop(query, { ...defaultOptions, ...options });
+  }
 }
 
-//function searchGlobals(query: string) {
-//return traverseObjectFor(window, query);
-  // traverse tree of properties recursively
-  // if found, print message
-
-
-  //}
-
-// function traverseObjectFor(obj: object, query: string) {
-
-//}
-
-
-function searchScripts(query: string) {
-  const tags = Array.from(document.querySelectorAll('script'));
-}
-
-function searchMeta(query: string) {
-  const tags = Array.from(document.querySelectorAll('meta'));
-
-}
-
-function searchBodyText(query: string) {
-  const body = document.querySelector('body');
-  const text = body ? body.textContent : '';
-
-}
-
-function searchImages(query: string) {
-  const tags = Array.from(document.querySelectorAll('img'));
-}
-
-function searchCookies(query: string) {
-  const text = document.cookie;
-}
-
-// Possibly parallelize via WebWorkers?
-
-function snoop(query: string, options: SnoopOptions = {
-  asSubstring: false,
-  globals: true,
-  scripts: true,
-  meta: true,
-  body: true,
-  images: true,
-  cookies: true,
-}) {
-  //if (options.globals) searchGlobals(query);
-  console.log("searching globals for", query);
-
-  if (options.scripts) searchScripts(query);
-  console.log("searching scripts for", query);
-
-  if (options.meta) searchMeta(query);
-  console.log("searching meta for", query);
-
-  if (options.body) searchBodyText(query);
-  console.log("searching body text for", query);
-
-  if (options.images) searchImages(query);
-  console.log("searching images and alt tags for", query);
-
-  if (options.cookies) searchCookies(query);
-}
-
-// Make the function globally available.
 if (window) {
-  window.snoop = snoop;
+  window.snoop = (query: string, options?: Partial<SnoopOptions>) => DomSnoop.create(query, options).snoop();
 }
-
