@@ -2,20 +2,11 @@ declare global {
   interface Window {
     snoop: (query: string, options?: Partial<SnoopOptions>) => void;
   }
-
-  const NodeFilter: {
-    SHOW_ALL: number;
-    SHOW_ELEMENT: number;
-    SHOW_TEXT: number;
-    SHOW_COMMENT: number;
-    FILTER_ACCEPT: number;
-    FILTER_REJECT: number;
-    FILTER_SKIP: number;
-  };
 }
 
 // Define NodeFilter constants if they don't exist
 if (typeof NodeFilter === "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global as any).NodeFilter = {
     SHOW_ALL: -1,
     SHOW_ELEMENT: 1,
@@ -48,11 +39,15 @@ class DomSnoop {
   query: string;
   options: SnoopOptions;
   private searchResults: Set<string>;
+  private visitedNodes: WeakSet<Node>;
+  private visitedPaths: Set<string>;
 
   constructor(query: string, options: SnoopOptions) {
     this.query = query;
     this.options = options;
     this.searchResults = new Set();
+    this.visitedNodes = new WeakSet();
+    this.visitedPaths = new Set();
   }
 
   private log(message: string) {
@@ -71,21 +66,42 @@ class DomSnoop {
     return normalizedContent.includes(normalizedQuery);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private searchObject(obj: any, path: string = "", depth: number = 0): void {
+    console.log("depth is", depth);
     if (depth >= this.options.maxDepth) return;
 
     try {
+      if (obj instanceof Node) {
+        if (this.visitedNodes.has(obj)) {
+          return;
+        }
+        this.visitedNodes.add(obj);
+      }
+
       for (const key in obj) {
         try {
           const value = obj[key];
           const currentPath = path ? `${path}.${key}` : key;
 
+          if (this.visitedPaths.has(currentPath)) {
+            continue;
+          }
+
           if (typeof value === "string") {
             if (this.performSearch(value)) {
+              this.visitedPaths.add(currentPath);
               this.log(`Found match: ${this.query} in ${currentPath}`);
             }
           } else if (typeof value === "object" && value !== null) {
-            this.searchObject(value, currentPath, depth + 1);
+            // For DOM nodes, only traverse if we haven't seen this node before
+            if (value instanceof Node) {
+              if (!this.visitedNodes.has(value)) {
+                this.searchObject(value, currentPath, depth + 1);
+              }
+            } else {
+              this.searchObject(value, currentPath, depth + 1);
+            }
           }
         } catch (e) {
           // Skip inaccessible properties
@@ -95,6 +111,27 @@ class DomSnoop {
       // Skip if object is not enumerable
     }
   }
+
+  private getNodePath(node: Node): string {
+    const parts: string[] = [];
+    let current: Node | null = node;
+
+    while (current && current !== document) {
+      if (current instanceof Element) {
+        let part = current.tagName.toLowerCase();
+        if (current.id) {
+          part += `#${current.id}`;
+        } else if (current.className) {
+          part += `.${current.className.split(" ").join(".")}`;
+        }
+        parts.unshift(part);
+      }
+      current = current.parentNode;
+    }
+
+    return parts.join(" > ");
+  }
+
   private searchLocalStorage() {
     try {
       if (!localStorage) {
@@ -350,17 +387,14 @@ class DomSnoop {
     cookies.forEach((cookie) => {
       const [name, value] = cookie.split("=").map((part) => part.trim());
 
-      // Check cookie name
       if (this.performSearch(name)) {
         this.log(`Found match: ${this.query} in cookie name`);
       }
 
-      // Check cookie value
       if (this.performSearch(value)) {
         this.log(`Found match: ${this.query} in cookie value`);
       }
 
-      // Try to parse JSON values
       try {
         const parsedValue = JSON.parse(decodeURIComponent(value));
         if (typeof parsedValue === "object" && parsedValue !== null) {
@@ -372,7 +406,12 @@ class DomSnoop {
     });
   }
 
+  // Reset the visited tracking when starting a new search
   snoop(): Set<string> {
+    // Clear the tracking sets before starting a new search
+    this.visitedNodes = new WeakSet();
+    this.visitedPaths = new Set();
+
     if (this.options.scripts) this.searchScripts();
     if (this.options.meta) this.searchMeta();
     if (this.options.body) this.searchBody();
