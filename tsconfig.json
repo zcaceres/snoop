@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "es2015",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
+    "types": ["bun-types"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
   }
 }
