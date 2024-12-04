@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
+    "target": "es5",
     "lib": ["dom", "es6"],
-    "module": "CommonJS",
-    "target": "es6",
-    "moduleResolution": "node",
-    "noEmit": true,
-    "moduleDetection": "force",
-    "allowJs": true,
-    "esModuleInterop": true,
+    "module": "esnext",
+    "outDir": "./dist",
     "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
-  }
+    "removeComments": true,
+    "downlevelIteration": true
+  },
+  "files": ["lib/index.ts"]
 }

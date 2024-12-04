@@ -1,7 +1,5 @@
-declare global {
-  interface Window {
-    snoop: (query: string, options?: Partial<SnoopOptions>) => void;
-  }
+interface Window {
+  snoop: (query: string, options?: Partial<SnoopOptions>) => void;
 }
 
 // Define NodeFilter constants if they don't exist
@@ -18,7 +16,7 @@ if (typeof NodeFilter === "undefined") {
   };
 }
 
-interface SnoopOptions {
+export interface SnoopOptions {
   scripts: boolean;
   meta: boolean;
   body: boolean;
@@ -68,7 +66,6 @@ class DomSnoop {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private searchObject(obj: any, path: string = "", depth: number = 0): void {
-    console.log("depth is", depth);
     if (depth >= this.options.maxDepth) return;
 
     try {
@@ -450,8 +447,10 @@ class DomSnoop {
 }
 
 if (typeof window !== "undefined") {
-  window.snoop = (query: string, options?: Partial<SnoopOptions>) =>
-    DomSnoop.create(query, options).snoop();
+  (window as unknown as Window).snoop = (
+    query: string,
+    options?: Partial<SnoopOptions>,
+  ) => DomSnoop.create(query, options).snoop();
 }
 
 export { DomSnoop };
